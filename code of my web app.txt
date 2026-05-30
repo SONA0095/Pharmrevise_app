@@ -1,0 +1,635 @@
+ import streamlit as st 
+import pandas as pd
+import requests  # To call API endpoints
+import os
+
+# API Base URL
+API_BASE_URL = "http://localhost:5000"  # Update with actual backend URL
+
+# File path for the FDA-approved drug repurposing database
+data_path = r"C:\Users\Sona\Desktop\PDD -SO  NA\PDD -SONA\pharmrevise-app\backend\data.csv"
+
+# Inject custom CSS for styling
+def apply_custom_css():
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background-color: #f0f2f6;
+        }
+        .stTabs [data-baseweb="tab"] {
+            flex: 1;
+            text-align: center;
+            background-color: transparent !important;
+        }
+        .stTabs [data-baseweb="tab"] > div {
+            font-size: 18px;
+            font-weight: bold !important;
+            color: black;
+            background-color: transparent !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+def main():
+    apply_custom_css()
+
+    st.title("PharmReVise: FDA-Approved Drug Repurposing Database")
+    
+    tabs = st.tabs(["Home", "Database Viewer", "Tools", "About", "Feedback"])
+
+    with tabs[0]:
+        st.subheader("Welcome to PharmReVise: FDA Drug Repurposing Hub")
+        st.write("""
+        Drug repurposing, also known as drug repositioning, is the process of finding new uses for existing FDA-approved drugs.
+        This approach can significantly reduce drug development time and costs, as these drugs have already undergone safety testing.
+        """)
+    
+    with tabs[1]:
+        display_database()
+    
+    with tabs[2]:
+        tools_menu()
+    
+    with tabs[3]:
+        st.subheader("About PharmReVise")
+        st.write("PharmReVise is designed to help researchers, clinicians, and pharmaceutical scientists identify new potential uses for existing drugs.")
+    
+    with tabs[4]:
+        st.subheader("Feedback")
+        st.text_area("Leave your feedback here:")
+
+# Function to load and display the database
+def display_database():
+    st.subheader("Database Viewer")
+    
+    if os.path.exists(data_path):
+        df = pd.read_csv(data_path)
+        st.dataframe(df)
+        
+        search_term = st.text_input("Search for a drug or target:")
+        if search_term:
+            filtered_df = df[df.apply(lambda row: row.astype(str).str.contains(search_term, case=False).any(), axis=1)]
+            st.dataframe(filtered_df)
+    else:
+        st.error("Database file not found! Please check the file path.")
+
+# Tools Submenu Logic with API Calls
+def tools_menu():
+    tool_tabs = st.tabs([
+        "Drug-Target Docking", "Binding Affinity Prediction", "Drug Similarity Search", "AI Risk Prediction"
+    ])
+    
+    with tool_tabs[0]:
+        st.subheader("Drug-Target Docking Tool")
+        target_protein = st.text_input("Enter Target Protein Name/ID:")
+        if st.button("Run Docking Simulation"):
+            response = requests.post(f"{API_BASE_URL}/docking", json={"target_protein": target_protein})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in docking simulation")
+    
+    with tool_tabs[1]:
+        st.subheader("Binding Affinity Prediction")
+        drug_name = st.text_input("Enter Drug Name:")
+        target_name = st.text_input("Enter Target Protein Name:")
+        if st.button("Predict Binding Affinity"):
+            response = requests.post(f"{API_BASE_URL}/binding_affinity", json={"drug_name": drug_name, "target_name": target_name})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in binding affinity prediction")
+    
+    with tool_tabs[2]:
+        st.subheader("Drug Similarity Search")
+        input_drug = st.text_input("Enter Drug Name for Similarity Search:")
+        if st.button("Search Similar Drugs"):
+            response = requests.get(f"{API_BASE_URL}/similarity_search", params={"drug_name": input_drug})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in drug similarity search")
+    
+    with tool_tabs[3]:
+        st.subheader("AI Risk Prediction")
+        risk_drug = st.text_input("Enter Drug Name for Risk Prediction:")
+        if st.button("Analyze Risk and Potential Uses"):
+            response = requests.post(f"{API_BASE_URL}/ai_risk", json={"drug_name": risk_drug})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in AI risk prediction")
+
+if __name__ == "__main__":
+    main()
+import streamlit as st
+import pandas as pd
+import requests  # To call API endpoints
+import os
+
+# API Base URL
+API_BASE_URL = "http://localhost:5000"  # Update with actual backend URL
+
+# File path for the FDA-approved drug repurposing database
+data_path = r"C:\Users\Sona\Desktop\PDD -SO  NA\PDD -SONA\pharmrevise-app\backend\data.csv"
+
+# Inject custom CSS for styling
+def apply_custom_css():
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background-color: #f0f2f6;
+        }
+        .stTabs [data-baseweb="tab"] {
+            flex: 1;
+            text-align: center;
+            background-color: transparent !important;
+        }
+        .stTabs [data-baseweb="tab"] > div {
+            font-size: 18px;
+            font-weight: bold !important;
+            color: black;
+            background-color: transparent !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+def main():
+    apply_custom_css()
+
+    st.title("PharmReVise: FDA-Approved Drug Repurposing Database")
+    
+    tabs = st.tabs(["Home", "Database Viewer", "Tools", "About", "Feedback"])
+
+    with tabs[0]:
+        st.subheader("Welcome to PharmReVise: FDA Drug Repurposing Hub")
+        st.write("""
+        Drug repurposing, also known as drug repositioning, is the process of finding new uses for existing FDA-approved drugs.
+        This approach can significantly reduce drug development time and costs, as these drugs have already undergone safety testing.
+        """)
+    
+    with tabs[1]:
+        display_database()
+    
+    with tabs[2]:
+        tools_menu()
+    
+    with tabs[3]:
+        st.subheader("About PharmReVise")
+        st.write("PharmReVise is designed to help researchers, clinicians, and pharmaceutical scientists identify new potential uses for existing drugs.")
+    
+    with tabs[4]:
+        st.subheader("Feedback")
+        st.text_area("Leave your feedback here:")
+
+# Function to load and display the database
+def display_database():
+    st.subheader("Database Viewer")
+    
+    if os.path.exists(data_path):
+        df = pd.read_csv(data_path)
+        st.dataframe(df)
+        
+        search_term = st.text_input("Search for a drug or target:")
+        if search_term:
+            filtered_df = df[df.apply(lambda row: row.astype(str).str.contains(search_term, case=False).any(), axis=1)]
+            st.dataframe(filtered_df)
+    else:
+        st.error("Database file not found! Please check the file path.")
+
+# Tools Submenu Logic with API Calls
+def tools_menu():
+    tool_tabs = st.tabs([
+        "Drug-Target Docking", "Binding Affinity Prediction", "Drug Similarity Search", "AI Risk Prediction"
+    ])
+    
+    with tool_tabs[0]:
+        st.subheader("Drug-Target Docking Tool")
+        target_protein = st.text_input("Enter Target Protein Name/ID:")
+        if st.button("Run Docking Simulation"):
+            response = requests.post(f"{API_BASE_URL}/docking", json={"target_protein": target_protein})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in docking simulation")
+    
+    with tool_tabs[1]:
+        st.subheader("Binding Affinity Prediction")
+        drug_name = st.text_input("Enter Drug Name:")
+        target_name = st.text_input("Enter Target Protein Name:")
+        if st.button("Predict Binding Affinity"):
+            response = requests.post(f"{API_BASE_URL}/binding_affinity", json={"drug_name": drug_name, "target_name": target_name})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in binding affinity prediction")
+    
+    with tool_tabs[2]:
+        st.subheader("Drug Similarity Search")
+        input_drug = st.text_input("Enter Drug Name for Similarity Search:")
+        if st.button("Search Similar Drugs"):
+            response = requests.get(f"{API_BASE_URL}/similarity_search", params={"drug_name": input_drug})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in drug similarity search")
+    
+    with tool_tabs[3]:
+        st.subheader("AI Risk Prediction")
+        risk_drug = st.text_input("Enter Drug Name for Risk Prediction:")
+        if st.button("Analyze Risk and Potential Uses"):
+            response = requests.post(f"{API_BASE_URL}/ai_risk", json={"drug_name": risk_drug})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in AI risk prediction")
+
+if __name__ == "__main__":
+    main()
+import streamlit as st
+import pandas as pd
+import requests  # To call API endpoints
+import os
+
+# API Base URL
+API_BASE_URL = "http://localhost:5000"  # Update with actual backend URL
+
+# File path for the FDA-approved drug repurposing database
+data_path = r"C:\Users\Sona\Desktop\PDD -SO  NA\PDD -SONA\pharmrevise-app\backend\data.csv"
+
+# Inject custom CSS for styling
+def apply_custom_css():
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background-color: #f0f2f6;
+        }
+        .stTabs [data-baseweb="tab"] {
+            flex: 1;
+            text-align: center;
+            background-color: transparent !important;
+        }
+        .stTabs [data-baseweb="tab"] > div {
+            font-size: 18px;
+            font-weight: bold !important;
+            color: black;
+            background-color: transparent !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+def main():
+    apply_custom_css()
+
+    st.title("PharmReVise: FDA-Approved Drug Repurposing Database")
+    
+    tabs = st.tabs(["Home", "Database Viewer", "Tools", "About", "Feedback"])
+
+    with tabs[0]:
+        st.subheader("Welcome to PharmReVise: FDA Drug Repurposing Hub")
+        st.write("""
+        Drug repurposing, also known as drug repositioning, is the process of finding new uses for existing FDA-approved drugs.
+        This approach can significantly reduce drug development time and costs, as these drugs have already undergone safety testing.
+        """)
+    
+    with tabs[1]:
+        display_database()
+    
+    with tabs[2]:
+        tools_menu()
+    
+    with tabs[3]:
+        st.subheader("About PharmReVise")
+        st.write("PharmReVise is designed to help researchers, clinicians, and pharmaceutical scientists identify new potential uses for existing drugs.")
+    
+    with tabs[4]:
+        st.subheader("Feedback")
+        st.text_area("Leave your feedback here:")
+
+# Function to load and display the database
+def display_database():
+    st.subheader("Database Viewer")
+    
+    if os.path.exists(data_path):
+        df = pd.read_csv(data_path)
+        st.dataframe(df)
+        
+        search_term = st.text_input("Search for a drug or target:")
+        if search_term:
+            filtered_df = df[df.apply(lambda row: row.astype(str).str.contains(search_term, case=False).any(), axis=1)]
+            st.dataframe(filtered_df)
+    else:
+        st.error("Database file not found! Please check the file path.")
+
+# Tools Submenu Logic with API Calls
+def tools_menu():
+    tool_tabs = st.tabs([
+        "Drug-Target Docking", "Binding Affinity Prediction", "Drug Similarity Search", "AI Risk Prediction"
+    ])
+    
+    with tool_tabs[0]:
+        st.subheader("Drug-Target Docking Tool")
+        target_protein = st.text_input("Enter Target Protein Name/ID:")
+        if st.button("Run Docking Simulation"):
+            response = requests.post(f"{API_BASE_URL}/docking", json={"target_protein": target_protein})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in docking simulation")
+    
+    with tool_tabs[1]:
+        st.subheader("Binding Affinity Prediction")
+        drug_name = st.text_input("Enter Drug Name:")
+        target_name = st.text_input("Enter Target Protein Name:")
+        if st.button("Predict Binding Affinity"):
+            response = requests.post(f"{API_BASE_URL}/binding_affinity", json={"drug_name": drug_name, "target_name": target_name})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in binding affinity prediction")
+    
+    with tool_tabs[2]:
+        st.subheader("Drug Similarity Search")
+        input_drug = st.text_input("Enter Drug Name for Similarity Search:")
+        if st.button("Search Similar Drugs"):
+            response = requests.get(f"{API_BASE_URL}/similarity_search", params={"drug_name": input_drug})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in drug similarity search")
+    
+    with tool_tabs[3]:
+        st.subheader("AI Risk Prediction")
+        risk_drug = st.text_input("Enter Drug Name for Risk Prediction:")
+        if st.button("Analyze Risk and Potential Uses"):
+            response = requests.post(f"{API_BASE_URL}/ai_risk", json={"drug_name": risk_drug})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in AI risk prediction")
+
+if __name__ == "__main__":
+    main()
+import streamlit as st
+import pandas as pd
+import requests  # To call API endpoints
+import os
+
+# API Base URL
+API_BASE_URL = "http://localhost:5000"  # Update with actual backend URL
+
+# File path for the FDA-approved drug repurposing database
+data_path = r"C:\Users\Sona\Desktop\PDD -SO  NA\PDD -SONA\pharmrevise-app\backend\data.csv"
+
+# Inject custom CSS for styling
+def apply_custom_css():
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background-color: #f0f2f6;
+        }
+        .stTabs [data-baseweb="tab"] {
+            flex: 1;
+            text-align: center;
+            background-color: transparent !important;
+        }
+        .stTabs [data-baseweb="tab"] > div {
+            font-size: 18px;
+            font-weight: bold !important;
+            color: black;
+            background-color: transparent !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+def main():
+    apply_custom_css()
+
+    st.title("PharmReVise: FDA-Approved Drug Repurposing Database")
+    
+    tabs = st.tabs(["Home", "Database Viewer", "Tools", "About", "Feedback"])
+
+    with tabs[0]:
+        st.subheader("Welcome to PharmReVise: FDA Drug Repurposing Hub")
+        st.write("""
+        Drug repurposing, also known as drug repositioning, is the process of finding new uses for existing FDA-approved drugs.
+        This approach can significantly reduce drug development time and costs, as these drugs have already undergone safety testing.
+        """)
+    
+    with tabs[1]:
+        display_database()
+    
+    with tabs[2]:
+        tools_menu()
+    
+    with tabs[3]:
+        st.subheader("About PharmReVise")
+        st.write("PharmReVise is designed to help researchers, clinicians, and pharmaceutical scientists identify new potential uses for existing drugs.")
+    
+    with tabs[4]:
+        st.subheader("Feedback")
+        st.text_area("Leave your feedback here:")
+
+# Function to load and display the database
+def display_database():
+    st.subheader("Database Viewer")
+    
+    if os.path.exists(data_path):
+        df = pd.read_csv(data_path)
+        st.dataframe(df)
+        
+        search_term = st.text_input("Search for a drug or target:")
+        if search_term:
+            filtered_df = df[df.apply(lambda row: row.astype(str).str.contains(search_term, case=False).any(), axis=1)]
+            st.dataframe(filtered_df)
+    else:
+        st.error("Database file not found! Please check the file path.")
+
+# Tools Submenu Logic with API Calls
+def tools_menu():
+    tool_tabs = st.tabs([
+        "Drug-Target Docking", "Binding Affinity Prediction", "Drug Similarity Search", "AI Risk Prediction"
+    ])
+    
+    with tool_tabs[0]:
+        st.subheader("Drug-Target Docking Tool")
+        target_protein = st.text_input("Enter Target Protein Name/ID:")
+        if st.button("Run Docking Simulation"):
+            response = requests.post(f"{API_BASE_URL}/docking", json={"target_protein": target_protein})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in docking simulation")
+    
+    with tool_tabs[1]:
+        st.subheader("Binding Affinity Prediction")
+        drug_name = st.text_input("Enter Drug Name:")
+        target_name = st.text_input("Enter Target Protein Name:")
+        if st.button("Predict Binding Affinity"):
+            response = requests.post(f"{API_BASE_URL}/binding_affinity", json={"drug_name": drug_name, "target_name": target_name})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in binding affinity prediction")
+    
+    with tool_tabs[2]:
+        st.subheader("Drug Similarity Search")
+        input_drug = st.text_input("Enter Drug Name for Similarity Search:")
+        if st.button("Search Similar Drugs"):
+            response = requests.get(f"{API_BASE_URL}/similarity_search", params={"drug_name": input_drug})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in drug similarity search")
+    
+    with tool_tabs[3]:
+        st.subheader("AI Risk Prediction")
+        risk_drug = st.text_input("Enter Drug Name for Risk Prediction:")
+        if st.button("Analyze Risk and Potential Uses"):
+            response = requests.post(f"{API_BASE_URL}/ai_risk", json={"drug_name": risk_drug})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in AI risk prediction")
+
+if __name__ == "__main__":
+    main()
+import streamlit as st
+import pandas as pd
+import requests  # To call API endpoints
+import os
+
+# API Base URL
+API_BASE_URL = "http://localhost:5000"  # Update with actual backend URL
+
+# File path for the FDA-approved drug repurposing database
+data_path = r"C:\Users\Sona\Desktop\PDD -SO  NA\PDD -SONA\pharmrevise-app\backend\data.csv"
+
+# Inject custom CSS for styling
+def apply_custom_css():
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background-color: #f0f2f6;
+        }
+        .stTabs [data-baseweb="tab"] {
+            flex: 1;
+            text-align: center;
+            background-color: transparent !important;
+        }
+        .stTabs [data-baseweb="tab"] > div {
+            font-size: 18px;
+            font-weight: bold !important;
+            color: black;
+            background-color: transparent !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+def main():
+    apply_custom_css()
+
+    st.title("PharmReVise: FDA-Approved Drug Repurposing Database")
+    
+    tabs = st.tabs(["Home", "Database Viewer", "Tools", "About", "Feedback"])
+
+    with tabs[0]:
+        st.subheader("Welcome to PharmReVise: FDA Drug Repurposing Hub")
+        st.write("""
+        Drug repurposing, also known as drug repositioning, is the process of finding new uses for existing FDA-approved drugs.
+        This approach can significantly reduce drug development time and costs, as these drugs have already undergone safety testing.
+        """)
+    
+    with tabs[1]:
+        display_database()
+    
+    with tabs[2]:
+        tools_menu()
+    
+    with tabs[3]:
+        st.subheader("About PharmReVise")
+        st.write("PharmReVise is designed to help researchers, clinicians, and pharmaceutical scientists identify new potential uses for existing drugs.")
+    
+    with tabs[4]:
+        st.subheader("Feedback")
+        st.text_area("Leave your feedback here:")
+
+# Function to load and display the database
+def display_database():
+    st.subheader("Database Viewer")
+    
+    if os.path.exists(data_path):
+        df = pd.read_csv(data_path)
+        st.dataframe(df)
+        
+        search_term = st.text_input("Search for a drug or target:")
+        if search_term:
+            filtered_df = df[df.apply(lambda row: row.astype(str).str.contains(search_term, case=False).any(), axis=1)]
+            st.dataframe(filtered_df)
+    else:
+        st.error("Database file not found! Please check the file path.")
+
+# Tools Submenu Logic with API Calls
+def tools_menu():
+    tool_tabs = st.tabs([
+        "Drug-Target Docking", "Binding Affinity Prediction", "Drug Similarity Search", "AI Risk Prediction"
+    ])
+    
+    with tool_tabs[0]:
+        st.subheader("Drug-Target Docking Tool")
+        target_protein = st.text_input("Enter Target Protein Name/ID:")
+        if st.button("Run Docking Simulation"):
+            response = requests.post(f"{API_BASE_URL}/docking", json={"target_protein": target_protein})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in docking simulation")
+    
+    with tool_tabs[1]:
+        st.subheader("Binding Affinity Prediction")
+        drug_name = st.text_input("Enter Drug Name:")
+        target_name = st.text_input("Enter Target Protein Name:")
+        if st.button("Predict Binding Affinity"):
+            response = requests.post(f"{API_BASE_URL}/binding_affinity", json={"drug_name": drug_name, "target_name": target_name})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in binding affinity prediction")
+    
+    with tool_tabs[2]:
+        st.subheader("Drug Similarity Search")
+        input_drug = st.text_input("Enter Drug Name for Similarity Search:")
+        if st.button("Search Similar Drugs"):
+            response = requests.get(f"{API_BASE_URL}/similarity_search", params={"drug_name": input_drug})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in drug similarity search")
+    
+    with tool_tabs[3]:
+        st.subheader("AI Risk Prediction")
+        risk_drug = st.text_input("Enter Drug Name for Risk Prediction:")
+        if st.button("Analyze Risk and Potential Uses"):
+            response = requests.post(f"{API_BASE_URL}/ai_risk", json={"drug_name": risk_drug})
+            if response.status_code == 200:
+                st.write(response.json())
+            else:
+                st.error("Error in AI risk prediction")
+
+if __name__ == "__main__":
+    main()  
